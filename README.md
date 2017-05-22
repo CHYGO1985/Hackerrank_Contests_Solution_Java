@@ -1,2 +1,2 @@
 # Hackerrank_Contests_Solution_Java
-Uploading My Passed solutions for problems of Hankerrank Contests. 
+Uploading My Passed (or Generate only Time Out erros ones : D ) solutions for problems in Hankerrank Contests. 
