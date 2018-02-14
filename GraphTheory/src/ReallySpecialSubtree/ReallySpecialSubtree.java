@@ -6,6 +6,14 @@ import java.util.PriorityQueue;
 import java.util.Scanner;
 import java.util.Set;
 
+/**
+ * 
+ * quick union + path compression
+ * 
+ * @author jingjiejiang
+ * @history
+ * 1. Created on Feb 15, 2018
+ */
 public class ReallySpecialSubtree {
 
 	static int findRoot (int i, int[] root) {
