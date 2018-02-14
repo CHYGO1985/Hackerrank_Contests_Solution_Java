@@ -10,111 +10,87 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+/**
+ * 
+ * To further optimise, can use dfs to build a count dictionary. so do not need to
+ * revisit the node to get nodes count.
+ * 
+ * @author jingjiejiang
+ * @history
+ * 1. Created on Feb 14, 2018
+ */
 public class EvenTree {
 	
-	private static final String FILE_PATH = "src/EvenTree/sample.txt";
+	private static final String FILE_PATH = "src/EvenTree/sample3.txt";
+	
+	// dfs
+	public static int getConnectCount (int row, int[][] graph, boolean[] visited, int parent) {
+		
+		int res = 1;
+		visited[row] = true;
+		
+		int[] conNodes = graph[row];
+		
+		for (int i = 2; i < conNodes.length; i ++) {
+			
+			if (i != parent && conNodes[i] != 0 && visited[i] == false) {
+				
+				res += getConnectCount (i, graph, visited, row);
+			}
+		}
+		
+		return res;
+	}
 	
 	public static int evenTree(int n, int m, int[][] tree) {
 
         // Complete this function
         int[][] graph = new int[n + 1][n + 1];
-        int[] conCount = new int[n + 1]; 
         
         // init graph
-        for (int i = 0; i < m; i ++) {
-            
+        for (int i = 0; i < tree.length; i ++) {
+        	
             int row = tree[i][0];
             int col = tree[i][1];
-                        
+            
             graph[row][col] = 1;  
             graph[col][row] = 1;
-        }
-        
-        // get the count of nodes that a node directly connects to
-        for (int i = 1; i < graph.length; i ++) {
-            for (int j = 1; j < graph[0].length; j ++) {
-                if (graph[i][j] == 1) {
-                    conCount[i] ++;  
-                }
-            }
-        }
-        
-        // from bottom to top, get the number of connected nodes count
-        Queue<Integer> nodes = new LinkedList<>();
-        Set<Integer> checked = new HashSet<>();
-        boolean[] visited = new boolean[n + 1];
-        
-        // add all leaves to the queue
-        for (int i = 1; i < conCount.length; i ++) {
-            
-            if (conCount[i] == 1) {
-                nodes.offer(i);
-                checked.add(i);
-                visited[i] = true;
-            }
-            else {
-            	// reset non-leaf node counts
-            	conCount[i] = 1;
-            }
-        }
-        
-        while (nodes.isEmpty() == false) {
-            
-            int curNode = nodes.poll();
-            if (curNode == 1) continue;
-            
-            for (int i = 1; i < graph.length; i ++) {
-                if (graph[curNode][i] == 0 && visited[i] == true) {
-                    continue;
-                }
-                
-                conCount[i] += conCount[curNode];
-                if (visited[i] == false) {
-                	nodes.offer(i);
-                	visited[i] = true;
-                }
-            }
-        }
-        
-        int res = 0;
-        
-        // test
-        for (int i = 1; i < conCount.length; i ++) {
-            System.out.println("i: " + i + " val:" + conCount[i]);
         }
         
         // from root node, check the following nodes whether it has even nodes
         // if it has, result + 1, add the node as a new root node for checking
         Queue<Integer> queue = new LinkedList<>();
         queue.offer(1);
+        int res = 0;
+        Set<Integer> visited = new HashSet<>();
+        visited.add(1);
         
         while (queue.isEmpty() == false) {
             
             int tmpNode = queue.poll();
             
             // node start from 1, find all connected node of cur node
-            for (int i = 1; i < graph.length; i ++) {
+            for (int i = 2; i < graph.length; i ++) {
                 
-                if (graph[tmpNode][i] == 0) {
+                if (graph[tmpNode][i] == 0 || visited.contains(i)) {
                     continue;
                 }
                 
                 // use bidirectional count, so e.g. node 3 has 3 connections
                 // (conCount[tmpNode] - 1) % 2 == 0. 1 is the root node.
-                if (conCount[tmpNode] % 2 != 0) {
+                int count = getConnectCount(i, graph, new boolean[n + 1], tmpNode);
+                if (count % 2 == 0) {
                     res ++;
                     
-                    // cut the tree, reduce node count
-                    conCount[tmpNode] -= conCount[i];
-                    conCount[i] --;
-                }          
-
+                } 
                 
-                
-                if (conCount[i] > 2) {
+                if (count > 2 && visited.contains(i) == false) {
                     queue.offer(i);
                 }
+                
             }
+            
+            visited.add(tmpNode);
         }
         
         return res;
